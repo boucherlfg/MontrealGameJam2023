@@ -4,11 +4,20 @@ using UnityEngine;
 
 public class PowerupScript : MonoBehaviour
 {
-    public float life = 1;
+    const float powerupLevelRatio = 0.05f;
+    [HideInInspector]
+    public float life = 0;
+    [HideInInspector]
     public float moveSpeed = 0;
+    [HideInInspector]
     public float damage = 0;
+    [HideInInspector]
     public float attackSpeed = 0;
+    [HideInInspector]
     public float energy = 0;
+    [HideInInspector]
+    public float energyRegen = 0;
+    [HideInInspector]
     public float switchSpeed = 0;
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -16,14 +25,15 @@ public class PowerupScript : MonoBehaviour
         var player = collision.GetComponent<PlayerScript>();
         if (!player) return;
 
-        Gamestate.Instance.Player.Life += life;
-        Gamestate.Instance.Player.MaxLife += life;
-        Gamestate.Instance.Player.MoveSpeed += moveSpeed;
-        Gamestate.Instance.Player.Damage += damage;
-        Gamestate.Instance.Player.AttackSpeed += attackSpeed;
-        Gamestate.Instance.Player.Energy += energy;
-        Gamestate.Instance.Player.MaxEnergy += energy;
-        Gamestate.Instance.Player.SwitchSpeed += switchSpeed;
+        Gamestate.Instance.Player.Life *= (1 + life * powerupLevelRatio);
+        Gamestate.Instance.Player.MaxLife *= (1 + life * powerupLevelRatio);
+        Gamestate.Instance.Player.MoveSpeed *= (1 - moveSpeed * powerupLevelRatio);
+        Gamestate.Instance.Player.Damage *= (1 + damage * powerupLevelRatio);
+        Gamestate.Instance.Player.AttackSpeed *= (1 - attackSpeed * powerupLevelRatio);
+        Gamestate.Instance.Player.Energy += (1 + energy * powerupLevelRatio);
+        Gamestate.Instance.Player.MaxEnergy += (1 + energy * powerupLevelRatio);
+        Gamestate.Instance.Player.EnergyRegen += (1 + energyRegen * powerupLevelRatio);
+        Gamestate.Instance.Player.SwitchSpeed += (1 - switchSpeed * powerupLevelRatio);
 
         Destroy(gameObject);
     }

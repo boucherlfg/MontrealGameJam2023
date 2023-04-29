@@ -18,13 +18,14 @@ public class Gamestate
             new Environment(), new Environment(), new Environment(), new Environment()
         };
     }
-    public void Initialize(float life, float energy, float switchSpeed, float moveSpeed, float damage, float attackSpeed)
+    public void Initialize(float life, float energy, float energyRegen, float switchSpeed, float moveSpeed, float damage, float attackSpeed)
     {
         foreach (var env in Environments)
         {
             var player = env.player;
             player.Life = player.MaxLife = life;
             player.Energy = player.MaxEnergy = energy;
+            player.EnergyRegen = energyRegen;
             player.SwitchSpeed = switchSpeed;
             player.MoveSpeed = moveSpeed;
             player.Damage = damage;
@@ -45,6 +46,7 @@ public class Gamestate
     public int Score;
     public float SwitchCooldown;
     public float AttackCooldown;
+    public int Potions;
     public Environment[] Environments
     {
         get;
@@ -68,6 +70,7 @@ public class Gamestate
         public float MaxLife;
         
         public float Energy;
+        public float EnergyRegen;
         public float MaxEnergy;
 
         public float MoveSpeed;

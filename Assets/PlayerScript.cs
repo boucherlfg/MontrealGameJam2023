@@ -9,6 +9,7 @@ public class PlayerScript : MonoBehaviour
     public float damage = 1;
     public float attackSpeed = 1;
     public float energy = 3;
+    public float energyRegen = 1;
     public float switchSpeed = 5;
 
     public GameObject attackPrefab;
@@ -24,7 +25,7 @@ public class PlayerScript : MonoBehaviour
     {
         body = GetComponent<Rigidbody2D>();
 
-        Gamestate.Instance.Initialize(life, energy, switchSpeed, moveSpeed, damage, attackSpeed);
+        Gamestate.Instance.Initialize(life, energy, energyRegen, switchSpeed, moveSpeed, damage, attackSpeed);
     }
 
     // Update is called once per frame
@@ -33,6 +34,7 @@ public class PlayerScript : MonoBehaviour
         Sprint();
         Move();
         Shoot();
+        Potion();
 
         UpdateCamera();
         if (Gamestate.Instance.Player.Life <= 0) Destroy(gameObject);
@@ -61,7 +63,7 @@ public class PlayerScript : MonoBehaviour
         }
         else
         {
-            Gamestate.Instance.Player.Energy += Time.deltaTime;
+            Gamestate.Instance.Player.Energy += Gamestate.Instance.Player.EnergyRegen * Time.deltaTime;
             if (Gamestate.Instance.Player.Energy >= Gamestate.Instance.Player.MaxEnergy)
             {
                 isExhausted = false;
@@ -89,5 +91,15 @@ public class PlayerScript : MonoBehaviour
             attack.GetComponent<AttackScript>().velocity = vector;
         }
         Gamestate.Instance.AttackCooldown -= Time.deltaTime;
+    }
+
+    private void Potion()
+    {
+        if (!Input.GetKeyUp(KeyCode.H)) return;
+
+        if (Gamestate.Instance.Potions <= 0) return;
+
+        Gamestate.Instance.Potions--;
+        Gamestate.Instance.Player.Life = Mathf.Clamp(Gamestate.Instance.Player.Life * 1.25f, 0, Gamestate.Instance.Player.MaxLife);
     }
 }
