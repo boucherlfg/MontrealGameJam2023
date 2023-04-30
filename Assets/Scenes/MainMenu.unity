@@ -181,7 +181,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: C H R O N O    C O M B A T
+  m_text: C H R O N O    S U R V I V O R
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7421fa1008fb2b14eb133617d9a5de2e, type: 2}
   m_sharedMaterial: {fileID: -7033596225889324905, guid: 7421fa1008fb2b14eb133617d9a5de2e, type: 2}
