@@ -4,36 +4,55 @@ using UnityEngine;
 
 public class Generator : MonoBehaviour
 {
-    const int size = 100;
-    [Header("max counts")]
-    public int maxEnemies = 100;
-    public int maxCoin = 10;
-    public int maxPotion = 5;
-    public int maxPowerup = 10;
-    
-    [Header("spawn rates")]
-    public float coinSpawnRate = 3;
-    public float powerupSpawnRate = 5;
-    public float potionSpawnRate = 10;
-    public float baseEnemySpawnRate = 5;
-    
-    private float bufferTime = 5;
-    private float enemySpawnRateCounter = 0;
-    private float coinRateCounter = 0;
-    private float potionRateCounter = 0;
-    private float powerupRateCounter = 0;
+    [System.Serializable]
+    public class Generatable
+    {
+        public GameObject prefab;
+        public int maxCount;
+        public float spawnRate;
 
-    private int lastTotalEnemyCount; //for updating kill count
-    private int killCount = 0;
-    private int difficulty = 0;
+        public bool isSubjectToDifficulty;
+        [HideInInspector]
+        public float spawnCounter;
+
+        private int lastCount;
+        public int killCount { get; private set; }
+        public int Count(Transform container)
+        {
+            int i = 0;
+            foreach (Transform trans in container)
+            {
+                if (trans.name == prefab.name) i++;
+            }
+            return i;
+        }
+        public void UpdateKillCount(int count)
+        {
+            var diff = lastCount - count;
+            if (diff > 0) killCount += diff;
+            lastCount = count;
+        }
+        public float GetSpawnRateModifier(int difficulty)
+        {
+            return 1f / (difficulty + 1f);
+        }
+        public int GetDifficulty(int killCount)
+        {
+            return Mathf.FloorToInt(Mathf.Log(1 + killCount / 100f, 1.15f));
+        }
+        public void Create(Vector2 position, Transform container, System.Action<GameObject> action = null)
+        {
+            var instance = Instantiate(prefab, position, Quaternion.identity);
+            instance.transform.SetParent(container);
+            action?.Invoke(instance);
+        }
+    }
+
+    public Generatable[] generatables;
+    const int size = 50;
 
     [Header("prefabs and container")]
     public Transform container;
-    public GameObject enemyPrefab;
-    public GameObject bossPrefab;
-    public GameObject coinPrefab;
-    public GameObject potionPrefab;
-    public GameObject powerupPrefab;
 
     int Count<T>() where T : MonoBehaviour
     {
@@ -47,25 +66,37 @@ public class Generator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ManageEnemies();
-        SpawnCoins();
-        SpawnPotion();
-        SpawnPowerup();
+        if (Gamestate.Instance.Paused) 
+        {
+            return;
+        }
+
+        foreach (var gen in generatables)
+        {
+            int count = gen.Count(container);
+            gen.UpdateKillCount(count);
+
+            if (count >= gen.maxCount) continue;
+            
+            var difficulty = gen.GetDifficulty(gen.killCount);
+            var spawnRateModifier = gen.GetSpawnRateModifier(difficulty);
+            gen.spawnCounter += Time.deltaTime;
+            if (gen.spawnCounter < (gen.isSubjectToDifficulty ? spawnRateModifier : 1) * gen.spawnRate) continue;
+
+            gen.spawnCounter = 0;
+
+            var pos = GetValidPos();
+            gen.Create(pos, container, obj => {
+                var comp = obj.GetComponent<PowerupScript>();
+                if (comp) BuildPowerup(comp, difficulty);
+            });
+        }
     }
-    void SpawnPowerup()
+    void BuildPowerup(PowerupScript comp, int difficulty)
     {
-        if (Count<PowerupScript>() > maxPowerup) return; 
-        powerupRateCounter += Time.deltaTime;
-        if (powerupRateCounter < powerupSpawnRate) return;
-        powerupRateCounter = 0;
+        float powerLevel = GetPowerLevel(difficulty);
 
-        var pos = GetValidPos();
-        var powerup = Instantiate(powerupPrefab, pos, Quaternion.identity);
-        powerup.transform.SetParent(container);
-
-        var comp = powerup.GetComponent<PowerupScript>();
-
-        for (int i = 0; i < difficulty; i++)
+        for (int i = 0; i < powerLevel; i++)
         {
             int choice = Random.Range(0, 7);
             switch (choice)
@@ -94,80 +125,13 @@ public class Generator : MonoBehaviour
             }
         }
     }
-    void SpawnPotion()
-    {
-        if (Count<PotionScript>() > maxPotion) return;
-        potionRateCounter += Time.deltaTime;
-        if (potionRateCounter < potionSpawnRate) return;
-        potionRateCounter = 0;
-
-        var pos = GetValidPos();
-        var potion = Instantiate(potionPrefab, pos, Quaternion.identity);
-        potion.transform.SetParent(container);
-
-        var comp = potion.GetComponent<PotionScript>();
-    }
-    void SpawnCoins()
-    {
-        if (Count<CoinScript>() > maxCoin) return;
-        coinRateCounter += Time.deltaTime;
-        if (coinRateCounter < coinSpawnRate) return;
-        coinRateCounter = 0;
-
-        var pos = GetValidPos();
-        var coin = Instantiate(coinPrefab, pos, Quaternion.identity);
-        coin.transform.SetParent(container);
-    }
-
-    void ManageEnemies()
-    {
-        int enemyCount = Count<EnemyScript>();
-        UpdateKillCount(enemyCount);
-
-        if (enemyCount > maxEnemies) return;
-
-        //give 5 seconds at start
-        bufferTime -= Time.deltaTime;
-        if (bufferTime > 0) return;
-
-        //spawn only when spawn rate is respected
-        difficulty = GetDifficulty(killCount);
-        var enemySpawnRateModifier = GetEnemySpawnRateModifier(difficulty);
-        enemySpawnRateCounter += Time.deltaTime;
-        if (enemySpawnRateCounter < baseEnemySpawnRate * enemySpawnRateModifier) return;
-
-        //reset spawn rate counter
-        enemySpawnRateCounter = 0;
-
-        //generate enemy
-        var pos = GetValidPos();
-        var dice = Random.Range(0, 10);
-
-        if (dice < 3)
-        {
-            var instance = Instantiate(bossPrefab, pos, Quaternion.identity);
-            instance.transform.SetParent(container);
-        }
-        else
-        {
-            var instance = Instantiate(enemyPrefab, pos, Quaternion.identity);
-            instance.transform.SetParent(container);
-        }
-    }
-
-    void UpdateKillCount(int mobCount)
-    {
-        var diff = lastTotalEnemyCount - mobCount;
-        if (diff > 0) killCount += diff;
-        lastTotalEnemyCount = mobCount;
-    }
 
     static Vector2 GetValidPos()
     {
-        var pos = Gamestate.Instance.Player.Position + Random.insideUnitCircle.normalized * 20;
+        var pos = Gamestate.Instance.Position + Random.insideUnitCircle.normalized * 20;
         while (pos.x < -size || pos.x > size || pos.y < -size || pos.y > size)
         {
-            pos = Gamestate.Instance.Player.Position + Random.insideUnitCircle.normalized * 20;
+            pos = Gamestate.Instance.Position + Random.insideUnitCircle.normalized * 20;
         }
 
         var hit = Physics2D.OverlapCircleAll(pos, 0.3f);
@@ -175,12 +139,9 @@ public class Generator : MonoBehaviour
 
         return pos;
     }
-    static int GetDifficulty(int killCount)
+    
+    static int GetPowerLevel(int difficulty)
     {
-        return Mathf.FloorToInt(Mathf.Log(1 + killCount / 100f, 1.15f));
-    }
-    static float GetEnemySpawnRateModifier(int difficulty)
-    {
-        return 1f / (difficulty + 1f);
+        return (int)Mathf.Log(difficulty + 1, 3) + 1;
     }
 }

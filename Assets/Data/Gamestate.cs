@@ -20,6 +20,11 @@ public class Gamestate
     }
     public void Initialize(float life, float energy, float energyRegen, float switchSpeed, float moveSpeed, float damage, float attackSpeed)
     {
+        Potions = 0;
+        Paused = false;
+        Position = Vector2.zero;
+        EnvironmentIndex = 0;
+
         foreach (var env in Environments)
         {
             var player = env.player;
@@ -30,23 +35,21 @@ public class Gamestate
             player.MoveSpeed = moveSpeed;
             player.Damage = damage;
             player.AttackSpeed = attackSpeed;
+            player.Score = 0;
         }
     }
     public PlayerData Player
     {
-        get => Environments[Index].player;
+        get => Environments[EnvironmentIndex].player;
     }
 
-    public int Index
-    {
-        get;
-        set;
-    }
+    public int EnvironmentIndex;
     public string Epoch;
-    public int Score;
     public float SwitchCooldown;
     public float AttackCooldown;
     public int Potions;
+    public Vector2 Position;
+    public bool Paused;
     public Environment[] Environments
     {
         get;
@@ -56,7 +59,6 @@ public class Gamestate
     public class Environment
     {
         public PlayerData player;
-        public int killCount;
         public Environment()
         {
             player = new PlayerData();
@@ -65,7 +67,6 @@ public class Gamestate
 
     public class PlayerData
     {
-        public Vector2 Position;
         public float Life;
         public float MaxLife;
         
@@ -79,6 +80,7 @@ public class Gamestate
         public float AttackSpeed;
 
         public float SwitchSpeed;
+        public int Score;
     }
 
 }

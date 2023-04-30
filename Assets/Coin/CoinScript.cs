@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class CoinScript : MonoBehaviour
 {
+    public string visibleName;
     private Rigidbody2D body;
+    public AudioClip coinSound;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,7 +17,9 @@ public class CoinScript : MonoBehaviour
         var player = collision.GetComponent<PlayerScript>();
         if (!player) return;
 
-        Gamestate.Instance.Score++;
+        Gamestate.Instance.Player.Score++;
+        Notification.Create("You just collected a " + visibleName + "!");
+        AudioSource.PlayClipAtPoint(coinSound, transform.position);
         Destroy(gameObject);
     }
 }

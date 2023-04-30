@@ -1,22 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScoreDisplay : MonoBehaviour
 {
+    public Sprite[] envScoreSprite;
     private string labelText;
-    private TMPro.TMP_Text label;
+    public TMPro.TMP_Text label;
+    public Image image;
     // Start is called before the first frame update
     void Start()
     {
-        label = GetComponent<TMPro.TMP_Text>();
         labelText = label.text;
     }
 
     // Update is called once per frame
     void Update()
     {
-        int value = Mathf.CeilToInt(Gamestate.Instance.Score);
-        label.text = labelText + value;
+        int value = Gamestate.Instance.Player.Score;
+        label.text = "" + value;
+        image.sprite = envScoreSprite[Gamestate.Instance.EnvironmentIndex];
     }
 }

@@ -4,19 +4,22 @@ using UnityEngine;
 
 public class AttackScript : MonoBehaviour
 {
-    private Rigidbody2D rbody;
+    public Rigidbody2D rbody;
     [HideInInspector]
     public Vector2 velocity;
     private float duration = 3;
+    public AudioClip hitSound;
 
-    IEnumerator Start()
-    {
-        yield return null;
-        rbody = GetComponent<Rigidbody2D>();
-        rbody.velocity = ((Vector3)velocity) * 20;
-    }
+    public GameObject bloodEffect;
+
     public void Update()
     {
+        if (Gamestate.Instance.Paused)
+        {
+            rbody.velocity = Vector2.zero;
+            return;
+        }
+        rbody.velocity = velocity * 20;
         duration -= Time.deltaTime;
         if (duration < 0) Destroy(gameObject);
     }
@@ -26,6 +29,8 @@ public class AttackScript : MonoBehaviour
         if (!enemy) return;
 
         enemy.lifeCounter--;
+        Instantiate(bloodEffect, transform.position, Quaternion.identity);
+        AudioSource.PlayClipAtPoint(hitSound, transform.position);
         Destroy(gameObject);
     }
 }

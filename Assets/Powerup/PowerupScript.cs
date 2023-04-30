@@ -5,7 +5,7 @@ using UnityEngine;
 public class PowerupScript : MonoBehaviour
 {
     const float powerupLevelRatio = 0.05f;
-    [HideInInspector]
+    //[HideInInspector]
     public float life = 0;
     [HideInInspector]
     public float moveSpeed = 0;
@@ -20,6 +20,7 @@ public class PowerupScript : MonoBehaviour
     [HideInInspector]
     public float switchSpeed = 0;
 
+    public AudioClip powerupSound;
     void OnTriggerEnter2D(Collider2D collision)
     {
         var player = collision.GetComponent<PlayerScript>();
@@ -34,7 +35,18 @@ public class PowerupScript : MonoBehaviour
         Gamestate.Instance.Player.MaxEnergy += (1 + energy * powerupLevelRatio);
         Gamestate.Instance.Player.EnergyRegen += (1 + energyRegen * powerupLevelRatio);
         Gamestate.Instance.Player.SwitchSpeed += (1 - switchSpeed * powerupLevelRatio);
-
+        Notify();
+        AudioSource.PlayClipAtPoint(powerupSound, transform.position);
         Destroy(gameObject);
+    }
+    void Notify()
+    {
+        if (life > 0) Notification.Create("your life increased!");
+        if(moveSpeed > 0) Notification.Create("your move speed increased!");
+        if (damage > 0) Notification.Create("your damage increased!");
+        if (attackSpeed > 0) Notification.Create("your attack speed increased!");
+        if (energy > 0) Notification.Create("your energy increased!");
+        if (energyRegen > 0) Notification.Create("your energy regeneration increased!");
+        if (switchSpeed > 0) Notification.Create("your time power recovery speed increased!");
     }
 }

@@ -55,7 +55,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 8b3bf928b5a0e3d45bb24ba27b57845c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -76,8 +76,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
-  m_Color: {r: 0.5943396, g: 0.04236651, b: 0, a: 1}
+  m_Sprite: {fileID: 21300000, guid: d9ecef4196f91f24fb054834040c95e7, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -99,6 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0569fa1dfeaceb34db848f149413bd2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  potionSound: {fileID: 8300000, guid: 66001e8408c05ca449b79c5234c3c648, type: 3}
 --- !u!58 &4005850140007529978
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -112,7 +113,7 @@ CircleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.21133333}
+  m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
 --- !u!50 &4005850140007529979

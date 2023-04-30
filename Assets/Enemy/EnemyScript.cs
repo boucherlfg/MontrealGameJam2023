@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
+    public string visibleName;
     public float life = 3;
     [HideInInspector]
     public float lifeCounter = 3;
@@ -17,6 +18,10 @@ public class EnemyScript : MonoBehaviour
 
     public WorldSlider lifeSlider;
 
+    public AudioClip attackSound;
+    public AudioClip deathSound;
+    public GameObject playerBlood;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,9 +33,14 @@ public class EnemyScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Gamestate.Instance.Paused)
+        {
+            body.velocity = Vector2.zero;
+            return;
+        }
         lifeSlider.value = ((float)lifeCounter / (float)life);
 
-        var direction = Gamestate.Instance.Player.Position - (Vector2)transform.position;
+        var direction = Gamestate.Instance.Position - (Vector2)transform.position;
         var distance = direction.magnitude;
         direction.Normalize();
 
@@ -40,11 +50,15 @@ public class EnemyScript : MonoBehaviour
         {
             attackCounter = attackSpeed;
             Gamestate.Instance.Player.Life -= attack;
+            Instantiate(playerBlood, Gamestate.Instance.Position, Quaternion.identity);
+            AudioSource.PlayClipAtPoint(attackSound, transform.position);
         }
         attackCounter -= Time.deltaTime;
 
         if (lifeCounter <= 0)
         {
+            Notification.Create("you just killed a " + visibleName + "!");
+            AudioSource.PlayClipAtPoint(deathSound, transform.position);
             Destroy(gameObject);
         }
 
