@@ -42,7 +42,6 @@ public class Generator : MonoBehaviour
         }
         public void Create(Vector3 position, Transform container, System.Action<GameObject> action = null)
         {
-            position.z = -100;
             var instance = Instantiate(prefab, position, Quaternion.identity);
             instance.transform.SetParent(container);
             action?.Invoke(instance);
