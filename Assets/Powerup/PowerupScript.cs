@@ -26,17 +26,18 @@ public class PowerupScript : MonoBehaviour
         var player = collision.GetComponent<PlayerScript>();
         if (!player) return;
 
-        Gamestate.Instance.Player.Life *= (1 + life * powerupLevelRatio);
-        Gamestate.Instance.Player.MaxLife *= (1 + life * powerupLevelRatio);
-        Gamestate.Instance.Player.MoveSpeed *= (1 - moveSpeed * powerupLevelRatio);
-        Gamestate.Instance.Player.Damage *= (1 + damage * powerupLevelRatio);
-        Gamestate.Instance.Player.AttackSpeed *= (1 - attackSpeed * powerupLevelRatio);
-        Gamestate.Instance.Player.Energy += (1 + energy * powerupLevelRatio);
-        Gamestate.Instance.Player.MaxEnergy += (1 + energy * powerupLevelRatio);
-        Gamestate.Instance.Player.EnergyRegen += (1 + energyRegen * powerupLevelRatio);
-        Gamestate.Instance.Player.SwitchSpeed += (1 - switchSpeed * powerupLevelRatio);
+        Gamestate.Instance.Player.Life += Gamestate.Instance.Player.MaxLife * life * powerupLevelRatio * 3;
+        Gamestate.Instance.Player.MaxLife += Gamestate.Instance.Player.MaxLife * life * powerupLevelRatio * 3;
+        Gamestate.Instance.Player.MoveSpeed += Gamestate.Instance.Player.MoveSpeed * moveSpeed * powerupLevelRatio * 0.8f;
+        Gamestate.Instance.Player.Damage += Gamestate.Instance.Player.Damage * damage * powerupLevelRatio * 3;
+        Gamestate.Instance.Player.AttackSpeed += Gamestate.Instance.Player.AttackSpeed * attackSpeed * powerupLevelRatio;
+        Gamestate.Instance.Player.Energy += Gamestate.Instance.Player.MaxEnergy * energy * powerupLevelRatio;
+        Gamestate.Instance.Player.MaxEnergy += Gamestate.Instance.Player.MaxEnergy * energy * powerupLevelRatio;
+        Gamestate.Instance.Player.EnergyRegen += Gamestate.Instance.Player.EnergyRegen * energyRegen * powerupLevelRatio;
+        Gamestate.Instance.Player.SwitchSpeed += Gamestate.Instance.Player.SwitchSpeed * switchSpeed * powerupLevelRatio * 3;
         Notify();
         AudioSource.PlayClipAtPoint(powerupSound, transform.position);
+        Gamestate.Instance.Tutorial[TutorialScript.TutorialType.Powerup] = true;
         Destroy(gameObject);
     }
     void Notify()

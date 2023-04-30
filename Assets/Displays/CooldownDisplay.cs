@@ -17,7 +17,7 @@ public class CooldownDisplay : MonoBehaviour
     void Update()
     {
         int value = Mathf.CeilToInt(Gamestate.Instance.SwitchCooldown);
-        slider.value = 1 - (Gamestate.Instance.SwitchCooldown / Gamestate.Instance.Player.SwitchSpeed);
+        slider.value = 1 - Gamestate.Instance.SwitchCooldown;
         if (slider.value < 0.99)
         {
             image.color = Color.grey;

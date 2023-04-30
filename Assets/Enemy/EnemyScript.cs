@@ -48,17 +48,19 @@ public class EnemyScript : MonoBehaviour
 
         if (distance < 0.5f && attackCounter < 0)
         {
-            attackCounter = attackSpeed;
+            attackCounter = 1;
             Gamestate.Instance.Player.Life -= attack;
             Instantiate(playerBlood, Gamestate.Instance.Position, Quaternion.identity);
             AudioSource.PlayClipAtPoint(attackSound, transform.position);
         }
-        attackCounter -= Time.deltaTime;
+        attackCounter -= attackSpeed * Time.deltaTime;
 
         if (lifeCounter <= 0)
         {
             Notification.Create("you just killed a " + visibleName + "!");
             AudioSource.PlayClipAtPoint(deathSound, transform.position);
+            Gamestate.Instance.totalKillCount++;
+            Gamestate.Instance.Tutorial[TutorialScript.TutorialType.Enemy] = true;
             Destroy(gameObject);
         }
 

@@ -61,8 +61,9 @@ public class PlayerScript : MonoBehaviour
     {
         var camera = Camera.main;
         var camPos = camera.transform.position;
+        var z = camPos.z;
         camPos = Vector3.Lerp(camPos, transform.position, cameraSpeed);
-        camPos.z = -10;
+        camPos.z = z;
         camera.transform.position = camPos;
     }
     private void Sprint()
@@ -103,20 +104,20 @@ public class PlayerScript : MonoBehaviour
         UpdateAttackSlider();
         if (Input.GetMouseButton(0) && Gamestate.Instance.AttackCooldown <= 0)
         {
-            Gamestate.Instance.AttackCooldown = Gamestate.Instance.Player.AttackSpeed;
+            Gamestate.Instance.AttackCooldown = 1;
             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             var vector = ((Vector2)(mousePos - transform.position)).normalized;
             var attack = Instantiate(attackPrefab, transform.position, Quaternion.identity);
             attack.GetComponent<AttackScript>().velocity = vector;
             AudioSource.PlayClipAtPoint(attackSound, transform.position);
         }
-        Gamestate.Instance.AttackCooldown -= Time.deltaTime;
+        Gamestate.Instance.AttackCooldown -= Gamestate.Instance.Player.AttackSpeed * Time.deltaTime;
 
         void UpdateAttackSlider()
         {
             var slider = GetComponentInChildren<WorldSlider>(true);
             slider.gameObject.SetActive(Gamestate.Instance.AttackCooldown > 0);
-            slider.value = 1 - (Gamestate.Instance.AttackCooldown / Gamestate.Instance.Player.AttackSpeed);
+            slider.value = 1 - Gamestate.Instance.AttackCooldown;
         }
     }
     private void Potion()

@@ -19,7 +19,7 @@ public class ScoreDisplay : MonoBehaviour
     void Update()
     {
         int value = Gamestate.Instance.Player.Score;
-        label.text = "" + value;
+        label.text = value + " / 10";
         image.sprite = envScoreSprite[Gamestate.Instance.EnvironmentIndex];
     }
 }

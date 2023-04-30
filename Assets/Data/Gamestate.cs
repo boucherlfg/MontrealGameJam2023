@@ -1,7 +1,21 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Gamestate
 {
+    public class TutorialData
+    {
+        private Dictionary<TutorialScript.TutorialType, bool> tutorials;
+        public TutorialData()
+        {
+            tutorials = new Dictionary<TutorialScript.TutorialType, bool>();
+        }
+        public bool this[TutorialScript.TutorialType key]
+        {
+            get => tutorials.ContainsKey(key) && tutorials[key];
+            set => tutorials[key] = value;
+        }
+    }
     private static Gamestate _instance;
     public static Gamestate Instance
     {
@@ -43,6 +57,7 @@ public class Gamestate
         get => Environments[EnvironmentIndex].player;
     }
 
+    public int totalKillCount;
     public int EnvironmentIndex;
     public string Epoch;
     public float SwitchCooldown;
@@ -55,13 +70,15 @@ public class Gamestate
         get;
         private set;
     }
-
+    public TutorialData Tutorial { get => Environments[EnvironmentIndex].tutorial; }
     public class Environment
     {
+        public TutorialData tutorial;
         public PlayerData player;
         public Environment()
         {
             player = new PlayerData();
+            tutorial = new TutorialData();
         }
     }
 

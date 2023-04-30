@@ -6,8 +6,7 @@ public class EnvironmentSwitch : MonoBehaviour
 {
     private Music music;
     public GameObject[] environments;
-    public Color[] backgrounds;
-
+    public Color[] cameraColors;
     public string[] epochString;
 
     public AudioClip switchSound;
@@ -24,7 +23,6 @@ public class EnvironmentSwitch : MonoBehaviour
             environments[i].SetActive(false);
         }
         Gamestate.Instance.Epoch = epochString[Gamestate.Instance.EnvironmentIndex];
-        Camera.main.backgroundColor = backgrounds[Gamestate.Instance.EnvironmentIndex];
     }
     void OnDestroy()
     {
@@ -48,7 +46,7 @@ public class EnvironmentSwitch : MonoBehaviour
             StartCoroutine(ChangeTime(switchDirection));
         }
 
-        Gamestate.Instance.SwitchCooldown -= Time.deltaTime;
+        Gamestate.Instance.SwitchCooldown -= Gamestate.Instance.Player.SwitchSpeed * Time.deltaTime;
         if (Gamestate.Instance.SwitchCooldown < 0)
         {
             Gamestate.Instance.SwitchCooldown = 0;
@@ -58,7 +56,7 @@ public class EnvironmentSwitch : MonoBehaviour
     IEnumerator ChangeTime(int switchDirection)
     {
         AudioSource.PlayClipAtPoint(switchSound, Gamestate.Instance.Position);
-        Gamestate.Instance.SwitchCooldown = Gamestate.Instance.Player.SwitchSpeed;
+        Gamestate.Instance.SwitchCooldown = 1;
         yield return Fade.DoFade(1, 0.5f);
 
         environments[Gamestate.Instance.EnvironmentIndex].SetActive(false);
@@ -67,7 +65,6 @@ public class EnvironmentSwitch : MonoBehaviour
         if (Gamestate.Instance.EnvironmentIndex >= environments.Length) Gamestate.Instance.EnvironmentIndex = 0;
 
         environments[Gamestate.Instance.EnvironmentIndex].SetActive(true);
-        Camera.main.backgroundColor = backgrounds[Gamestate.Instance.EnvironmentIndex];
         Gamestate.Instance.Epoch = epochString[Gamestate.Instance.EnvironmentIndex];
         Notification.Create("welcome to " + Gamestate.Instance.Epoch + "!");
         yield return Fade.DoFade(0, 0.5f);

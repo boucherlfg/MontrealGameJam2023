@@ -40,8 +40,9 @@ public class Generator : MonoBehaviour
         {
             return Mathf.FloorToInt(Mathf.Log(1 + killCount / 100f, 1.15f));
         }
-        public void Create(Vector2 position, Transform container, System.Action<GameObject> action = null)
+        public void Create(Vector3 position, Transform container, System.Action<GameObject> action = null)
         {
+            position.z = -100;
             var instance = Instantiate(prefab, position, Quaternion.identity);
             instance.transform.SetParent(container);
             action?.Invoke(instance);

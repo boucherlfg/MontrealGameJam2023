@@ -14,6 +14,6 @@ public class EpochDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        label.text = ">Q - " + Gamestate.Instance.Epoch + " - E<";
+        label.text = "<Q - " + Gamestate.Instance.Epoch + " - E>";
     }
 }

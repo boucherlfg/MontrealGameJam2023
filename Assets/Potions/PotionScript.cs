@@ -11,6 +11,7 @@ public class PotionScript : MonoBehaviour
         Gamestate.Instance.Potions += 1;
         Notification.Create("you just collected a health potion!");
         AudioSource.PlayClipAtPoint(potionSound, transform.position);
+        Gamestate.Instance.Tutorial[TutorialScript.TutorialType.Potion] = true;
         Destroy(gameObject);
     }
 }
