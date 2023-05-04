@@ -5,19 +5,26 @@ using UnityEngine.UI;
 
 public class CooldownDisplay : MonoBehaviour
 {
-    private string labelText;
     public Slider slider;
     public Image image;
     // Start is called before the first frame update
     void Start()
     {
+        Gamestate.Instance.Player.SwitchCooldown.Changed += UpdateDisplay;
+        Gamestate.Instance.Player.SwitchSpeed.Changed += UpdateDisplay;
+        UpdateDisplay();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDestroy()
     {
-        int value = Mathf.CeilToInt(Gamestate.Instance.SwitchCooldown);
-        slider.value = 1 - Gamestate.Instance.SwitchCooldown;
+        Gamestate.Instance.Player.SwitchSpeed.Changed -= UpdateDisplay;
+        Gamestate.Instance.Player.SwitchCooldown.Changed -= UpdateDisplay;
+    }
+
+    private void UpdateDisplay()
+    {
+        int value = Mathf.CeilToInt(Gamestate.Instance.Player.SwitchCooldown.Value);
+        slider.value = 1 - Gamestate.Instance.Player.SwitchCooldown.Value;
         if (slider.value < 0.99)
         {
             image.color = Color.grey;

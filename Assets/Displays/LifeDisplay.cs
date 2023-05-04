@@ -9,12 +9,19 @@ public class LifeDisplay : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        Gamestate.Instance.Player.Life.Changed += UpdateDisplay;
+        Gamestate.Instance.Player.MaxLife.Changed += UpdateDisplay;
+        UpdateDisplay();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDestroy()
     {
-        slider.value = Gamestate.Instance.Player.Life / Gamestate.Instance.Player.MaxLife;
+        Gamestate.Instance.Player.Life.Changed -= UpdateDisplay;
+        Gamestate.Instance.Player.MaxLife.Changed -= UpdateDisplay;
+    }
+
+    private void UpdateDisplay()
+    {
+        slider.value = Gamestate.Instance.Player.Life.Value / Gamestate.Instance.Player.MaxLife.Value;
     }
 }

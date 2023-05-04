@@ -6,6 +6,10 @@ public class GameOver : MonoBehaviour
 {
     [Scene]
     public string mainMenuScene;
+    void Start()
+    {
+        Music.Instance.Change(Music.Instance.menuMusic);
+    }
     public void MainMenu()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuScene);

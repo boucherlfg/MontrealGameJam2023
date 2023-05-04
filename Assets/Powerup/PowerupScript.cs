@@ -17,37 +17,34 @@ public class PowerupScript : MonoBehaviour
     public float energy = 0;
     [HideInInspector]
     public float energyRegen = 0;
-    [HideInInspector]
-    public float switchSpeed = 0;
 
     public AudioClip powerupSound;
+
+    void Start()
+    {
+        Notification.Instance.Create("a powerup has just appeared!");
+        Gamestate.Instance.Props[name]++;
+    }
+    void OnDestroy()
+    {
+        Gamestate.Instance.Props[name]--;
+    }
     void OnTriggerEnter2D(Collider2D collision)
     {
         var player = collision.GetComponent<PlayerScript>();
         if (!player) return;
 
-        Gamestate.Instance.Player.Life += Gamestate.Instance.Player.MaxLife * life * powerupLevelRatio * 3;
-        Gamestate.Instance.Player.MaxLife += Gamestate.Instance.Player.MaxLife * life * powerupLevelRatio * 3;
-        Gamestate.Instance.Player.MoveSpeed += Gamestate.Instance.Player.MoveSpeed * moveSpeed * powerupLevelRatio * 0.8f;
-        Gamestate.Instance.Player.Damage += Gamestate.Instance.Player.Damage * damage * powerupLevelRatio * 3;
-        Gamestate.Instance.Player.AttackSpeed += Gamestate.Instance.Player.AttackSpeed * attackSpeed * powerupLevelRatio;
-        Gamestate.Instance.Player.Energy += Gamestate.Instance.Player.MaxEnergy * energy * powerupLevelRatio;
-        Gamestate.Instance.Player.MaxEnergy += Gamestate.Instance.Player.MaxEnergy * energy * powerupLevelRatio;
-        Gamestate.Instance.Player.EnergyRegen += Gamestate.Instance.Player.EnergyRegen * energyRegen * powerupLevelRatio;
-        Gamestate.Instance.Player.SwitchSpeed += Gamestate.Instance.Player.SwitchSpeed * switchSpeed * powerupLevelRatio * 3;
-        Notify();
+        Gamestate.Instance.Player.Life.Value += Gamestate.Instance.Player.MaxLife.Value * 0.1f;
+        Gamestate.Instance.Player.MaxLife.Value += Gamestate.Instance.Player.MaxLife.Value * 0.1f;
+        Gamestate.Instance.Player.MoveSpeed.Value += Gamestate.Instance.Player.MoveSpeed.Value * 0.03f;
+        Gamestate.Instance.Player.Damage.Value += Gamestate.Instance.Player.Damage.Value * 0.05f;
+        Gamestate.Instance.Player.AttackSpeed.Value += Gamestate.Instance.Player.AttackSpeed.Value * 0.03f;
+        Gamestate.Instance.Player.Energy.Value += Gamestate.Instance.Player.MaxEnergy.Value * 0.1f;
+        Gamestate.Instance.Player.MaxEnergy.Value += Gamestate.Instance.Player.MaxEnergy.Value * 0.1f;
+        Gamestate.Instance.Player.EnergyRegen.Value += Gamestate.Instance.Player.EnergyRegen.Value * 0.15f;
+
         AudioSource.PlayClipAtPoint(powerupSound, transform.position);
-        Gamestate.Instance.Tutorial[TutorialScript.TutorialType.Powerup] = true;
+        Gamestate.Instance.Environment.Tutorial[TutorialType.Powerup] = true;
         Destroy(gameObject);
-    }
-    void Notify()
-    {
-        if (life > 0) Notification.Create("your life increased!");
-        if(moveSpeed > 0) Notification.Create("your move speed increased!");
-        if (damage > 0) Notification.Create("your damage increased!");
-        if (attackSpeed > 0) Notification.Create("your attack speed increased!");
-        if (energy > 0) Notification.Create("your energy increased!");
-        if (energyRegen > 0) Notification.Create("your energy regeneration increased!");
-        if (switchSpeed > 0) Notification.Create("your time power recovery speed increased!");
     }
 }

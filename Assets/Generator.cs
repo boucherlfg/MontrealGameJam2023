@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Generator;
 
 public class Generator : MonoBehaviour
 {
@@ -10,13 +11,12 @@ public class Generator : MonoBehaviour
         public GameObject prefab;
         public int maxCount;
         public float spawnRate;
+        public enum SpawnType { KillCount, Rate }
+        public SpawnType spawnType = SpawnType.KillCount;
 
         public bool isSubjectToDifficulty;
         [HideInInspector]
         public float spawnCounter;
-
-        private int lastCount;
-        public int killCount { get; private set; }
         public int Count(Transform container)
         {
             int i = 0;
@@ -24,13 +24,8 @@ public class Generator : MonoBehaviour
             {
                 if (trans.name == prefab.name) i++;
             }
+            if (prefab.gameObject.layer == LayerMask.NameToLayer("Points")) print(i);
             return i;
-        }
-        public void UpdateKillCount(int count)
-        {
-            var diff = lastCount - count;
-            if (diff > 0) killCount += diff;
-            lastCount = count;
         }
         public float GetSpawnRateModifier(int difficulty)
         {
@@ -44,43 +39,68 @@ public class Generator : MonoBehaviour
         {
             var instance = Instantiate(prefab, position, Quaternion.identity);
             instance.transform.SetParent(container);
+            instance.name = prefab.name;
             action?.Invoke(instance);
         }
     }
 
     public Generatable[] generatables;
-    const int size = 50;
+    const int size = 25;
 
     [Header("prefabs and container")]
     public Transform container;
 
-    int Count<T>() where T : MonoBehaviour
+    void OnEnable()
     {
-        int count = 0;
-        foreach (Transform t in container)
-        {
-            if (t.GetComponent<T>()) count++;
-        }
-        return count;
+        Gamestate.Instance.Kills.Changed += Kills_Changed;
+        
     }
+    void OnDisable()
+    {
+        Gamestate.Instance.Kills.Changed -= Kills_Changed;
+    }
+
+    private void Kills_Changed()
+    {
+        foreach (var gen in generatables)
+        {
+            if (gen.spawnType == Generatable.SpawnType.Rate) continue;
+            if (Gamestate.Instance.Props[gen.prefab.name] >= gen.maxCount) continue;
+
+            var difficulty = gen.GetDifficulty(Gamestate.Instance.Environment.TotalKill.Value);
+            var spawnRateModifier = gen.isSubjectToDifficulty ? gen.GetSpawnRateModifier(difficulty) : 1;
+
+            var totalKill = Gamestate.Instance.Environment.TotalKill.Value;
+            if (totalKill <= 0 || totalKill % (int)(gen.spawnRate/spawnRateModifier) != 0) continue;
+            
+
+            gen.spawnCounter = 0;
+
+            var pos = GetValidPos();
+            gen.Create(pos, container, obj => {
+                var comp = obj.GetComponent<PowerupScript>();
+                if (comp) BuildPowerup(comp, difficulty);
+            });
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if (Gamestate.Instance.Paused) 
+        if (Gamestate.Instance.Paused.Value) 
         {
             return;
         }
 
         foreach (var gen in generatables)
         {
-            int count = gen.Count(container);
-            gen.UpdateKillCount(count);
-
-            if (count >= gen.maxCount) continue;
+            if (gen.spawnType != Generatable.SpawnType.Rate) continue;
+            if (Gamestate.Instance.Props[gen.prefab.name] >= gen.maxCount) continue;
             
-            var difficulty = gen.GetDifficulty(gen.killCount);
-            var spawnRateModifier = gen.GetSpawnRateModifier(difficulty);
+            var difficulty = gen.GetDifficulty(Gamestate.Instance.Kills[gen.prefab.name]);
             gen.spawnCounter += Time.deltaTime;
+            var spawnRateModifier = gen.GetSpawnRateModifier(difficulty);
+
             if (gen.spawnCounter < (gen.isSubjectToDifficulty ? spawnRateModifier : 1) * gen.spawnRate) continue;
 
             gen.spawnCounter = 0;
@@ -119,19 +139,16 @@ public class Generator : MonoBehaviour
                 case 5:
                     comp.attackSpeed++;
                     break;
-                case 6:
-                    comp.switchSpeed++;
-                    break;
             }
         }
     }
 
     static Vector2 GetValidPos()
     {
-        var pos = Gamestate.Instance.Position + Random.insideUnitCircle.normalized * 20;
+        var pos = Gamestate.Instance.Player.Position.Value + Random.insideUnitCircle.normalized * 20;
         while (pos.x < -size || pos.x > size || pos.y < -size || pos.y > size)
         {
-            pos = Gamestate.Instance.Position + Random.insideUnitCircle.normalized * 20;
+            pos = Gamestate.Instance.Player.Position.Value + Random.insideUnitCircle.normalized * 20;
         }
 
         var hit = Physics2D.OverlapCircleAll(pos, 0.3f);

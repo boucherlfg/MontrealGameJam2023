@@ -1,103 +1,58 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
-public class Gamestate
+public class Gamestate : Singleton<Gamestate>
 {
-    public class TutorialData
+    public TimePeriod Environment => Environments[Index.Value];
+    public Observed<int> Index { get; private set; }
+    public void MoveIndex(int value)
     {
-        private Dictionary<TutorialScript.TutorialType, bool> tutorials;
-        public TutorialData()
-        {
-            tutorials = new Dictionary<TutorialScript.TutorialType, bool>();
-        }
-        public bool this[TutorialScript.TutorialType key]
-        {
-            get => tutorials.ContainsKey(key) && tutorials[key];
-            set => tutorials[key] = value;
-        }
+        Index = Index + value;
+        if (Index.Value < 0) Index = Environments.Count - 1;
+        if (Index.Value >= Environments.Count) Index = 0;
     }
-    private static Gamestate _instance;
-    public static Gamestate Instance
-    {
-        get
-        {
-            if (_instance == null) _instance = new Gamestate();
-            return _instance;
-        }
-    }
+    public Observed<bool> InGame { get; private set; }
+    public Observed<bool> Paused { get; private set; }
 
-    private Gamestate()
+    public PlayerData Player { get; private set; }
+    public List<TimePeriod> Environments {get; private set; }
+    public Counter<string, int> Kills { get; private set; }
+    public Counter<string, int> Props { get; private set; }
+
+    public Gamestate()
     {
-        Environments = new Environment[]{
-            new Environment(), new Environment(), new Environment(), new Environment()
-        };
+        Index = 0;
+        Environments = new List<TimePeriod>();
+
+        Player = new PlayerData();
+        Kills = new Counter<string, int>();
+        Props = new Counter<string, int>();
+
+        Paused = new Observed<bool>();
+        InGame = new Observed<bool>();
     }
     public void Initialize(float life, float energy, float energyRegen, float switchSpeed, float moveSpeed, float damage, float attackSpeed)
     {
-        Potions = 0;
-        Paused = false;
-        Position = Vector2.zero;
-        EnvironmentIndex = 0;
-
-        foreach (var env in Environments)
-        {
-            var player = env.player;
-            player.Life = player.MaxLife = life;
-            player.Energy = player.MaxEnergy = energy;
-            player.EnergyRegen = energyRegen;
-            player.SwitchSpeed = switchSpeed;
-            player.MoveSpeed = moveSpeed;
-            player.Damage = damage;
-            player.AttackSpeed = attackSpeed;
-            player.Score = 0;
-        }
-    }
-    public PlayerData Player
-    {
-        get => Environments[EnvironmentIndex].player;
-    }
-
-    public int totalKillCount;
-    public int EnvironmentIndex;
-    public string Epoch;
-    public float SwitchCooldown;
-    public float AttackCooldown;
-    public int Potions;
-    public Vector2 Position;
-    public bool Paused;
-    public Environment[] Environments
-    {
-        get;
-        private set;
-    }
-    public TutorialData Tutorial { get => Environments[EnvironmentIndex].tutorial; }
-    public class Environment
-    {
-        public TutorialData tutorial;
-        public PlayerData player;
-        public Environment()
-        {
-            player = new PlayerData();
-            tutorial = new TutorialData();
-        }
-    }
-
-    public class PlayerData
-    {
-        public float Life;
-        public float MaxLife;
+        Paused.Value = false;
         
-        public float Energy;
-        public float EnergyRegen;
-        public float MaxEnergy;
+        Index = 0;
 
-        public float MoveSpeed;
-        public float Damage;
+        Kills.Reset();
+        Props.Reset();
 
-        public float AttackSpeed;
+        Player = new PlayerData();
 
-        public float SwitchSpeed;
-        public int Score;
+        Player.Life.Value = Player.MaxLife.Value = life;
+        Player.Energy.Value = Player.MaxEnergy.Value = energy;
+
+        Player.Damage.Value = damage;
+
+        Player.EnergyRegen.Value = energyRegen;
+        Player.SwitchSpeed.Value = switchSpeed;
+        Player.MoveSpeed.Value = moveSpeed;
+        Player.AttackSpeed.Value = attackSpeed;
     }
-
+    
+    
 }

@@ -92,7 +92,7 @@ MonoBehaviour:
   visibleName: robot cop
   life: 15
   lifeCounter: 3
-  speed: 1
+  speed: 2
   attack: 3
   attackSpeed: 0.5
   lifeSlider: {fileID: 5026557303740443994}
@@ -131,6 +131,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2ff2352012184e4680f1acb5ab0c7f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anim: {fileID: -8882997424912478969}
+  rbody: {fileID: 2175239241222187560}
+  rend: {fileID: 4277140952744260448}
 --- !u!1 &6040285568179472365
 GameObject:
   m_ObjectHideFlags: 0

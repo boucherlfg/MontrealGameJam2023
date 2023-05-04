@@ -5,14 +5,20 @@ using UnityEngine;
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenu;
-    public GameObject howTo;
     [Scene]
     public string mainMenuScene;
 
-    // Update is called once per frame
-    void Update()
+    void Start()
     {
-        if (Gamestate.Instance.Paused)
+        Gamestate.Instance.Paused.Changed += Paused_Changed;
+    }
+    void OnDestroy()
+    {
+        Gamestate.Instance.Paused.Changed -= Paused_Changed;
+    }
+    private void Paused_Changed()
+    {
+        if (Gamestate.Instance.Paused.Value)
         {
             pauseMenu.SetActive(true);
         }
@@ -27,15 +33,11 @@ public class PauseMenu : MonoBehaviour
 
     public void Resume()
     {
-        Gamestate.Instance.Paused = !Gamestate.Instance.Paused;
-    }
-    public void Howto()
-    {
-        howTo.SetActive(true);
+        Gamestate.Instance.Paused.Value = !Gamestate.Instance.Paused.Value;
     }
     public void Mainmenu()
     {
-        Gamestate.Instance.Paused = !Gamestate.Instance.Paused;
+        Gamestate.Instance.Paused.Value = !Gamestate.Instance.Paused.Value;
         UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuScene);
     }
 }

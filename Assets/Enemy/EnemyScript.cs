@@ -28,42 +28,82 @@ public class EnemyScript : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         lifeSlider.gameObject.SetActive(false);
         lifeCounter = life;
+        Gamestate.Instance.Props[name]++;
+    }
+    void OnDestroy()
+    {
+        Gamestate.Instance.Props[name]--;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Gamestate.Instance.Paused)
+        body.velocity = Vector2.zero;
+        if (Gamestate.Instance.Paused.Value) return;
+
+
+        var direction = GetAvoidVector() + GetChaseVector();
+        var speed = Gamestate.Instance.Player.IsSprinting ? this.speed * 0.5f : this.speed;
+        body.velocity = direction.normalized * speed;
+
+        TryAttackPlayer();
+
+        TryDie();
+
+        UpdateSlider();
+
+    }
+    void TryDie()
+    {
+        if (lifeCounter <= 0)
         {
-            body.velocity = Vector2.zero;
-            return;
+            Notification.Instance.Create("you just killed a " + visibleName + "!");
+            AudioSource.PlayClipAtPoint(deathSound, transform.position);
+            Gamestate.Instance.Kills[name]++;
+            Gamestate.Instance.Environment.TotalKill.Value++;
+            Gamestate.Instance.Environment.Tutorial[TutorialType.Enemy] = true;
+            Destroy(gameObject);
         }
-        lifeSlider.value = ((float)lifeCounter / (float)life);
-
-        var direction = Gamestate.Instance.Position - (Vector2)transform.position;
-        var distance = direction.magnitude;
-        direction.Normalize();
-
-        body.velocity = direction * speed;
-
+    }
+    void TryAttackPlayer()
+    {
+        var distance = Vector2.Distance(Gamestate.Instance.Player.Position, transform.position);
         if (distance < 0.5f && attackCounter < 0)
         {
             attackCounter = 1;
-            Gamestate.Instance.Player.Life -= attack;
-            Instantiate(playerBlood, Gamestate.Instance.Position, Quaternion.identity);
+            Gamestate.Instance.Player.Life.Value -= attack;
+            Instantiate(playerBlood, Gamestate.Instance.Player.Position.Value, Quaternion.identity);
             AudioSource.PlayClipAtPoint(attackSound, transform.position);
         }
         attackCounter -= attackSpeed * Time.deltaTime;
-
-        if (lifeCounter <= 0)
+    }
+    Vector2 GetAvoidVector()
+    {
+        Vector2 direction = Vector2.zero;
+        foreach (Transform t in transform.parent)
         {
-            Notification.Create("you just killed a " + visibleName + "!");
-            AudioSource.PlayClipAtPoint(deathSound, transform.position);
-            Gamestate.Instance.totalKillCount++;
-            Gamestate.Instance.Tutorial[TutorialScript.TutorialType.Enemy] = true;
-            Destroy(gameObject);
-        }
+            if (t == transform) continue;
+            var comp = t.GetComponent<EnemyScript>();
+            if (!comp) continue;
 
+            Vector2 tempDir = comp.transform.position - transform.position;
+            var avoidanceFactor = transform.localScale.x;
+            var diffDist = avoidanceFactor - tempDir.magnitude;
+            if (diffDist > 0)
+            {
+                direction -= tempDir.normalized * (diffDist / avoidanceFactor) * avoidanceFactor;
+            }
+        }
+        return direction;
+    }
+    Vector2 GetChaseVector()
+    {
+        var distVect = (Gamestate.Instance.Player.Position.Value - (Vector2)transform.position);
+        return distVect.normalized;
+    }
+    void UpdateSlider()
+    {
+        lifeSlider.value = ((float)lifeCounter / (float)life);
         if (lifeCounter < life)
         {
             lifeSlider.gameObject.SetActive(true);

@@ -4,69 +4,68 @@ using UnityEngine;
 
 public class EnvironmentSwitch : MonoBehaviour
 {
-    private Music music;
-    public GameObject[] environments;
-    public Color[] cameraColors;
-    public string[] epochString;
-
+    public TimePeriod.TimePeriodData[] timePeriods;
     public AudioClip switchSound;
     // Start is called before the first frame update
     void Start()
     {
-        Gamestate.Instance.EnvironmentIndex = 0;
-        music = FindObjectOfType<Music>();
-        music.followEpochs = true;
+        Gamestate.Instance.InGame.Value = true;
 
-        for (int i = 0; i < environments.Length; i++)
+        Gamestate.Instance.Environments.Clear();
+        for(int i = 0; i < timePeriods.Length; i++)
         {
-            if (i == Gamestate.Instance.EnvironmentIndex) continue;
-            environments[i].SetActive(false);
+            var data = timePeriods[i];
+            var timePeriod = new TimePeriod();
+            timePeriod.Data = data;
+            Gamestate.Instance.Environments.Add(timePeriod);
+            data.map.SetActive(false);
         }
-        Gamestate.Instance.Epoch = epochString[Gamestate.Instance.EnvironmentIndex];
+        Inputs.Instance.Switched += OnSwitch;
+        Gamestate.Instance.Environment.Data.map.SetActive(true);
+        Music.Instance.Change(Gamestate.Instance.Environment.Data.music);
     }
+
+    private void OnSwitch(int obj)
+    {
+        if (Gamestate.Instance.Paused.Value)
+        {
+            return;
+        }
+        if (Gamestate.Instance.Player.SwitchCooldown.Value > 0) return;
+        StartCoroutine(ChangeTime(obj));
+    }
+
     void OnDestroy()
     {
-        music.followEpochs = false;
+        Inputs.Instance.Switched -= OnSwitch;
+        Gamestate.Instance.InGame.Value = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Gamestate.Instance.Paused)
+        if (Gamestate.Instance.Paused.Value)
         {
             return;
         }
-        int switchDirection = 0;
-        if (Input.GetKeyUp(KeyCode.Q)) switchDirection = -1;
-        else if (Input.GetKeyUp(KeyCode.E)) switchDirection = 1;
 
-        if (switchDirection != 0)
+        Gamestate.Instance.Player.SwitchCooldown.Value -= Gamestate.Instance.Player.SwitchSpeed.Value * Time.deltaTime;
+        if (Gamestate.Instance.Player.SwitchCooldown.Value < 0)
         {
-            if (Gamestate.Instance.SwitchCooldown > 0) return;
-            StartCoroutine(ChangeTime(switchDirection));
-        }
-
-        Gamestate.Instance.SwitchCooldown -= Gamestate.Instance.Player.SwitchSpeed * Time.deltaTime;
-        if (Gamestate.Instance.SwitchCooldown < 0)
-        {
-            Gamestate.Instance.SwitchCooldown = 0;
+            Gamestate.Instance.Player.SwitchCooldown.Value = 0;
         }
     }
 
     IEnumerator ChangeTime(int switchDirection)
     {
-        AudioSource.PlayClipAtPoint(switchSound, Gamestate.Instance.Position);
-        Gamestate.Instance.SwitchCooldown = 1;
-        yield return Fade.DoFade(1, 0.5f);
+        AudioSource.PlayClipAtPoint(switchSound, Gamestate.Instance.Player.Position.Value);
+        Gamestate.Instance.Player.SwitchCooldown.Value = 1;
+        yield return Fade.Instance.FadeAsync(1, 0.5f);
 
-        environments[Gamestate.Instance.EnvironmentIndex].SetActive(false);
-        Gamestate.Instance.EnvironmentIndex += switchDirection;
-        if (Gamestate.Instance.EnvironmentIndex < 0) Gamestate.Instance.EnvironmentIndex = environments.Length - 1;
-        if (Gamestate.Instance.EnvironmentIndex >= environments.Length) Gamestate.Instance.EnvironmentIndex = 0;
-
-        environments[Gamestate.Instance.EnvironmentIndex].SetActive(true);
-        Gamestate.Instance.Epoch = epochString[Gamestate.Instance.EnvironmentIndex];
-        Notification.Create("welcome to " + Gamestate.Instance.Epoch + "!");
-        yield return Fade.DoFade(0, 0.5f);
+        Gamestate.Instance.Environment.Data.map.SetActive(false);
+        Gamestate.Instance.MoveIndex(switchDirection);
+        Gamestate.Instance.Environment.Data.map.SetActive(true);
+        Music.Instance.Change(Gamestate.Instance.Environment.Data.music);
+        yield return Fade.Instance.FadeAsync(0, 0.5f);
     }
 }

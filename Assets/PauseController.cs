@@ -7,15 +7,15 @@ public class PauseController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        Inputs.Instance.Paused += Instance_Paused;
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDestroy()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            Gamestate.Instance.Paused = !Gamestate.Instance.Paused;
-        }
+        Inputs.Instance.Paused -= Instance_Paused;
+    }
+    private void Instance_Paused()
+    {
+        Gamestate.Instance.Paused.Value = !Gamestate.Instance.Paused.Value;
     }
 }

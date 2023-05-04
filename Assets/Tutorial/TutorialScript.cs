@@ -4,18 +4,21 @@ using UnityEngine;
 
 public class TutorialScript : MonoBehaviour
 {
-    public enum TutorialType
-    {
-        Score = 0,
-        Powerup = 1,
-        Enemy = 2,
-        Potion = 3
-    }
+    
     public TutorialType type;
     // Start is called before the first frame update
-    void Update()
+    void Start()
     {
-        gameObject.SetActive(!Gamestate.Instance.Tutorial[type]);
+        Gamestate.Instance.Environment.Tutorial.Changed += UpdateTutorial;
+        UpdateTutorial();
+    }
+    void OnDestroy()
+    {
+        Gamestate.Instance.Environment.Tutorial.Changed -= UpdateTutorial;
     }
 
+    private void UpdateTutorial()
+    {
+        gameObject.SetActive(!Gamestate.Instance.Environment.Tutorial[type]);
+    }
 }

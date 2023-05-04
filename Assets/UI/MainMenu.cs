@@ -7,6 +7,10 @@ public class MainMenu : MonoBehaviour
     [Scene]
     public string gameScene;
     public GameObject howTo;
+    void Start()
+    {
+        Music.Instance.Change(Music.Instance.menuMusic);
+    }
     public void Play()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(gameScene);

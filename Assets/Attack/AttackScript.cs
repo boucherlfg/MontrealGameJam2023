@@ -14,7 +14,7 @@ public class AttackScript : MonoBehaviour
 
     public void Update()
     {
-        if (Gamestate.Instance.Paused)
+        if (Gamestate.Instance.Paused.Value)
         {
             rbody.velocity = Vector2.zero;
             return;
@@ -28,7 +28,7 @@ public class AttackScript : MonoBehaviour
         var enemy = collision.GetComponent<EnemyScript>();
         if (!enemy) return;
 
-        enemy.lifeCounter--;
+        enemy.lifeCounter -= Gamestate.Instance.Player.Damage.Value;
         Instantiate(bloodEffect, transform.position, Quaternion.identity);
         AudioSource.PlayClipAtPoint(hitSound, transform.position);
         Destroy(gameObject);

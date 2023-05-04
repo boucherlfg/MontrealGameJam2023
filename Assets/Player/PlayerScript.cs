@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
+    bool shooting;
     public float life = 5;
     public float moveSpeed = 4;
     public float damage = 1;
@@ -17,9 +18,7 @@ public class PlayerScript : MonoBehaviour
 
     private Rigidbody2D body;
 
-    private bool isSprinting = false;
-    private bool isExhausted = false;
-
+    private Vector2 direction;
     [Header("sounds")]
     public AudioClip attackSound;
     public AudioClip deathSound;
@@ -34,28 +33,61 @@ public class PlayerScript : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
 
         Gamestate.Instance.Initialize(life, energy, energyRegen, switchSpeed, moveSpeed, damage, attackSpeed);
+        Inputs.Instance.Clicked += OnClick;
+        Inputs.Instance.Potioned += OnPotion;
+        Gamestate.Instance.Player.Life.Changed += Life_Changed;
+    }
+    void OnDestroy()
+    {
+        Inputs.Instance.Clicked -= OnClick;
+        Inputs.Instance.Potioned -= OnPotion;
+        Gamestate.Instance.Player.Life.Changed -= Life_Changed;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Life_Changed()
     {
-        if (Gamestate.Instance.Paused)
-        {
-            body.velocity = Vector2.zero;
-            return;
-        }
-        Sprint();
-        Move();
-        Shoot();
-        Potion();
-
-        UpdateCamera();
-        if (Gamestate.Instance.Player.Life <= 0)
+        if (Gamestate.Instance.Player.Life.Value <= 0)
         {
             Destroy(gameObject);
             AudioSource.PlayClipAtPoint(deathSound, transform.position);
             UnityEngine.SceneManagement.SceneManager.LoadScene(gameOverScene);
         }
+    }
+
+    
+
+    private void OnPotion()
+    {
+        if (Gamestate.Instance.Paused.Value)
+        {
+            return;
+        }
+        if (Gamestate.Instance.Player.Potions.Value <= 0) return;
+
+        Gamestate.Instance.Player.Potions.Value--;
+        Gamestate.Instance.Player.Life.Value = Mathf.Clamp(Gamestate.Instance.Player.Life.Value + Gamestate.Instance.Player.MaxLife.Value * 0.25f, 0, Gamestate.Instance.Player.MaxLife.Value);
+        AudioSource.PlayClipAtPoint(potionSound, transform.position);
+    }
+
+    private void OnClick(bool value)
+    {
+        shooting = value;
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Gamestate.Instance.Paused.Value)
+        {
+            body.velocity = Vector2.zero;
+            return;
+        }
+        Move();
+        Shoot();
+
+        UpdateAttackSlider();
+        UpdateCamera();
     }
     private void UpdateCamera() 
     {
@@ -66,68 +98,41 @@ public class PlayerScript : MonoBehaviour
         camPos.z = z;
         camera.transform.position = camPos;
     }
-    private void Sprint()
-    {
-        isSprinting = !isExhausted && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
-        if (isSprinting)
-        {
-            if (Gamestate.Instance.Player.Energy <= 0)
-            {
-                Gamestate.Instance.Player.Energy = 0;
-                isSprinting = false;
-                isExhausted = true;
-                return;
-            }
-            Gamestate.Instance.Player.Energy -= Time.deltaTime;
-        }
-        else
-        {
-            Gamestate.Instance.Player.Energy += Gamestate.Instance.Player.EnergyRegen * Time.deltaTime;
-            if (Gamestate.Instance.Player.Energy >= Gamestate.Instance.Player.MaxEnergy)
-            {
-                isExhausted = false;
-                Gamestate.Instance.Player.Energy = Gamestate.Instance.Player.MaxEnergy;
-            }
-        }
-    }
+    
     private void Move()
     {
-        var speed = !isSprinting ? Gamestate.Instance.Player.MoveSpeed : Gamestate.Instance.Player.MoveSpeed * 2;
-        var x = Input.GetAxisRaw("Horizontal");
-        var y = Input.GetAxisRaw("Vertical");
+        var speed = !Gamestate.Instance.Player.IsSprinting ? Gamestate.Instance.Player.MoveSpeed.Value : Gamestate.Instance.Player.MoveSpeed.Value * 2;
+        var move = Inputs.Instance.Move;
 
-        body.velocity = new Vector2(x, y).normalized * speed;
-        Gamestate.Instance.Position = transform.position;
+        body.velocity = move.normalized * speed;
+        Gamestate.Instance.Player.Position.Value = transform.position;
     }
     private void Shoot()
     {
+        Gamestate.Instance.Player.AttackCooldown.Value -= (Gamestate.Instance.Player.IsSprinting ? Gamestate.Instance.Player.AttackSpeed.Value * 2 : Gamestate.Instance.Player.AttackSpeed.Value) * Time.deltaTime;
+
         UpdateAttackSlider();
-        if (Input.GetMouseButton(0) && Gamestate.Instance.AttackCooldown <= 0)
-        {
-            Gamestate.Instance.AttackCooldown = 1;
-            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            var vector = ((Vector2)(mousePos - transform.position)).normalized;
-            var attack = Instantiate(attackPrefab, transform.position, Quaternion.identity);
-            attack.GetComponent<AttackScript>().velocity = vector;
-            AudioSource.PlayClipAtPoint(attackSound, transform.position);
-        }
-        Gamestate.Instance.AttackCooldown -= Gamestate.Instance.Player.AttackSpeed * Time.deltaTime;
 
-        void UpdateAttackSlider()
-        {
-            var slider = GetComponentInChildren<WorldSlider>(true);
-            slider.gameObject.SetActive(Gamestate.Instance.AttackCooldown > 0);
-            slider.value = 1 - Gamestate.Instance.AttackCooldown;
-        }
+        if (!shooting || Gamestate.Instance.Player.AttackCooldown.Value > 0.01f) return;
+
+        Gamestate.Instance.Player.AttackCooldown.Value = 1;
+        
+        var attack = Instantiate(attackPrefab, transform.position, Quaternion.identity);
+        attack.GetComponent<AttackScript>().velocity = GetDirection();
+        AudioSource.PlayClipAtPoint(attackSound, transform.position);
     }
-    private void Potion()
+    Vector2 GetDirection()
     {
-        if (!Input.GetKeyUp(KeyCode.F)) return;
 
-        if (Gamestate.Instance.Potions <= 0) return;
+        var pos = Camera.main.ScreenToWorldPoint(Inputs.Instance.MousePosition);
+        direction = pos - transform.position;
 
-        Gamestate.Instance.Potions--;
-        Gamestate.Instance.Player.Life = Mathf.Clamp(Gamestate.Instance.Player.Life + Gamestate.Instance.Player.MaxLife * 0.25f, 0, Gamestate.Instance.Player.MaxLife);
-        AudioSource.PlayClipAtPoint(potionSound, transform.position);
+        return direction.normalized;
+    }
+    void UpdateAttackSlider()
+    {
+        var slider = GetComponentInChildren<WorldSlider>(true);
+        slider.gameObject.SetActive(Gamestate.Instance.Player.AttackCooldown.Value > 0);
+        slider.value = 1 - Gamestate.Instance.Player.AttackCooldown.Value;
     }
 }

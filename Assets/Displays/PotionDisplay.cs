@@ -8,12 +8,17 @@ public class PotionDisplay : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Gamestate.Instance.Player.Potions.Changed += UpdateDisplay;
+        UpdateDisplay();
+    }
+    void OnDestroy()
+    {
+        Gamestate.Instance.Player.Potions.Changed -= UpdateDisplay;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void UpdateDisplay()
     {
-        int value = Mathf.CeilToInt(Gamestate.Instance.Potions);
+        int value = Mathf.CeilToInt(Gamestate.Instance.Player.Potions.Value);
         label.text = value + "";
     }
 }

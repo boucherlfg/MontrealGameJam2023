@@ -1,19 +1,14 @@
 ﻿using UnityEngine;
 
-public class Notification : MonoBehaviour
+public class Notification : SingletonBehaviour<Notification>
 {
     public TMPro.TMP_Text[] lines;
-    private static Notification instance;
-    void Start()
+    public void Create(string message)
     {
-        if (!instance) instance = this;
-    }
-    public static void Create(string message)
-    {
-        for (int i = 1; i < instance.lines.Length; i++)
+        for (int i = 1; i < lines.Length; i++)
         {
-            instance.lines[i - 1].text = instance.lines[i].text;
+            lines[i - 1].text = lines[i].text;
         }
-        instance.lines[instance.lines.Length - 1].text = message;
+        lines[lines.Length - 1].text = message;
     }
 }

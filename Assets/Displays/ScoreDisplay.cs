@@ -5,21 +5,35 @@ using UnityEngine.UI;
 
 public class ScoreDisplay : MonoBehaviour
 {
-    public Sprite[] envScoreSprite;
-    private string labelText;
     public TMPro.TMP_Text label;
     public Image image;
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
-        labelText = label.text;
+        yield return new WaitUntil(() => Gamestate.Instance.Environments.Count > 0);
+        Gamestate.Instance.Environment.Score.Changed += UpdateDisplay;
+        Gamestate.Instance.Index.Changed += Index_Changed;
+        UpdateDisplay();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Index_Changed()
     {
-        int value = Gamestate.Instance.Player.Score;
-        label.text = value + " / 10";
-        image.sprite = envScoreSprite[Gamestate.Instance.EnvironmentIndex];
+        Gamestate.Instance.Environments.ForEach(env => env.Score.Changed -= UpdateDisplay);
+        Gamestate.Instance.Environment.Score.Changed += UpdateDisplay;
+        UpdateDisplay();
+    }
+
+    void OnDestroy()
+    {
+        Gamestate.Instance.Environments.ForEach(env => env.Score.Changed -= UpdateDisplay);
+        Gamestate.Instance.Index.Changed -= Index_Changed;
+    }
+
+    private void UpdateDisplay()
+    {
+        var env = Gamestate.Instance.Environment;
+        int value = env.Score.Value;
+        label.text = value + "";
+        image.sprite = env.Data.scoreSprite;
     }
 }

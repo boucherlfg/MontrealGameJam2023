@@ -2,20 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
 public class AnimationScript : MonoBehaviour
 {
-    private Animator anim;
-    private Rigidbody2D rbody;
-    private SpriteRenderer rend;
-    // Start is called before the first frame update
-    void Start()
-    {
-        anim = GetComponent<Animator>();
-        rbody = GetComponent<Rigidbody2D>();
-        rend = GetComponent<SpriteRenderer>();
-        if (!rend) rend = GetComponentInChildren<SpriteRenderer>();
-    }
+    public Animator anim;
+    public Rigidbody2D rbody;
+    public SpriteRenderer rend;
 
     // Update is called once per frame
     void Update()
