@@ -68,4 +68,18 @@ public class EnvironmentSwitch : MonoBehaviour
         Music.Instance.Change(Gamestate.Instance.Environment.Data.music);
         yield return Fade.Instance.FadeAsync(0, 0.5f);
     }
+
+    public IEnumerator GoTo(int index)
+    {
+        AudioSource.PlayClipAtPoint(switchSound, Gamestate.Instance.Player.Position.Value);
+        Gamestate.Instance.Player.SwitchCooldown.Value = 1;
+        yield return Fade.Instance.FadeAsync(1, 0.5f);
+
+        Gamestate.Instance.Environment.Data.map.SetActive(false);
+        Gamestate.Instance.Index.Value = index;
+        Gamestate.Instance.Environment.Data.map.SetActive(true);
+
+        Music.Instance.Change(Gamestate.Instance.Environment.Data.music);
+        yield return Fade.Instance.FadeAsync(0, 0.5f);
+    }
 }

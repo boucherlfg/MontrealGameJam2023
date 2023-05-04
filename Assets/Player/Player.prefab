@@ -133,6 +133,12 @@ GameObject:
   - component: {fileID: 4358608714236088457}
   - component: {fileID: 526267543}
   - component: {fileID: 526267544}
+  - component: {fileID: 4358608713744442401}
+  - component: {fileID: 4358608713744442402}
+  - component: {fileID: 4358608713744442403}
+  - component: {fileID: 4358608713744442404}
+  - component: {fileID: 4358608713744442405}
+  - component: {fileID: 4358608713744442406}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -177,13 +183,6 @@ MonoBehaviour:
   energy: 3
   energyRegen: 0.25
   switchSpeed: 0.06666667
-  attackPrefab: {fileID: 8724134296699479600, guid: 4b74231cbe2dfe342a51280595540407, type: 3}
-  pointer: {fileID: 0}
-  cameraSpeed: 0.9
-  attackSound: {fileID: 8300000, guid: dfa7b0750ba12ed47ad2669995c18048, type: 3}
-  deathSound: {fileID: 8300000, guid: 6e8cd6c87fe62b749ae96c2102af5e1f, type: 3}
-  potionSound: {fileID: 8300000, guid: 2d23462ac17e5cd4d847160a02f78a95, type: 3}
-  gameOverScene: GameOver
 --- !u!50 &526267543
 Rigidbody2D:
   serializedVersion: 4
@@ -231,6 +230,84 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.49, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &4358608713744442401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358608714236088459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0315c40824af4cf4283c51f8212e7fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4358608713744442402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358608714236088459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 910d91ca9bdf2db46a027f1f94a33cf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackSound: {fileID: 8300000, guid: dfa7b0750ba12ed47ad2669995c18048, type: 3}
+  attackPrefab: {fileID: 8724134296699479600, guid: 4b74231cbe2dfe342a51280595540407, type: 3}
+--- !u!114 &4358608713744442403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358608714236088459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b560515f97ea5cc41b050b0d8f944d7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameOverScene: GameOver
+  deathSound: {fileID: 8300000, guid: 6e8cd6c87fe62b749ae96c2102af5e1f, type: 3}
+--- !u!114 &4358608713744442404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358608714236088459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee709b95d02569e49a43c504319c8c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4358608713744442405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358608714236088459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d870af6fb3f292d499faa5dc0abb5b7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  potionSound: {fileID: 8300000, guid: 2d23462ac17e5cd4d847160a02f78a95, type: 3}
+--- !u!114 &4358608713744442406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358608714236088459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b965fa5e46bba99469414d31b0ca9850, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraSpeed: 0.9
 --- !u!1 &4696545351541069827
 GameObject:
   m_ObjectHideFlags: 0

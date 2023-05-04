@@ -11,6 +11,8 @@ public class TimePeriod
         public AudioClip music;
         public GameObject map;
     }
+
+    public Observed<bool> FinalBossIsBeaten { get; private set; }
     public TimePeriodData Data { get; set; }
 
     public Counter<TutorialType, bool> Tutorial;
@@ -20,6 +22,7 @@ public class TimePeriod
     {
         TotalKill = new Observed<int>();
         Score = new Observed<int>();
+        FinalBossIsBeaten = new Observed<bool>();
 
         Tutorial = new Counter<TutorialType, bool>();
     }

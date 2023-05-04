@@ -14,7 +14,6 @@ public class EnemyScript : MonoBehaviour
     public float attack = 1;
     public float attackSpeed = 1;
 
-    private Rigidbody2D body;
     private float attackCounter = 0;
 
     public WorldSlider lifeSlider;
@@ -26,8 +25,6 @@ public class EnemyScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (spawnNoise) AudioSource.PlayClipAtPoint(spawnNoise, transform.position);
-        body = GetComponent<Rigidbody2D>();
         lifeSlider.gameObject.SetActive(false);
         lifeCounter = life;
         Gamestate.Instance.Props[name]++;
@@ -40,13 +37,7 @@ public class EnemyScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        body.velocity = Vector2.zero;
         if (Gamestate.Instance.Paused.Value) return;
-
-
-        var direction = GetAvoidVector() + GetChaseVector();
-        var speed = Gamestate.Instance.Player.IsSprinting ? this.speed * 0.5f : this.speed;
-        body.velocity = direction.normalized * speed;
 
         TryAttackPlayer();
 
@@ -59,7 +50,7 @@ public class EnemyScript : MonoBehaviour
     {
         if (lifeCounter <= 0)
         {
-            Notification.Instance.Create("you just killed a " + visibleName + "!");
+            Notification.Instance.Create("you just killed " + visibleName + "!");
             AudioSource.PlayClipAtPoint(deathSound, transform.position);
             Gamestate.Instance.Kills[name]++;
             Gamestate.Instance.Environment.TotalKill.Value++;
@@ -79,30 +70,7 @@ public class EnemyScript : MonoBehaviour
         }
         attackCounter -= attackSpeed * Time.deltaTime;
     }
-    Vector2 GetAvoidVector()
-    {
-        Vector2 direction = Vector2.zero;
-        foreach (Transform t in transform.parent)
-        {
-            if (t == transform) continue;
-            var comp = t.GetComponent<EnemyScript>();
-            if (!comp) continue;
-
-            Vector2 tempDir = comp.transform.position - transform.position;
-            var avoidanceFactor = transform.localScale.x;
-            var diffDist = avoidanceFactor - tempDir.magnitude;
-            if (diffDist > 0)
-            {
-                direction -= tempDir.normalized * (diffDist / avoidanceFactor) * avoidanceFactor;
-            }
-        }
-        return direction;
-    }
-    Vector2 GetChaseVector()
-    {
-        var distVect = (Gamestate.Instance.Player.Position.Value - (Vector2)transform.position);
-        return distVect.normalized;
-    }
+  
     void UpdateSlider()
     {
         lifeSlider.value = ((float)lifeCounter / (float)life);

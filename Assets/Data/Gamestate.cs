@@ -1,24 +1,41 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class Gamestate : Singleton<Gamestate>
 {
-    public TimePeriod Environment => Environments[Index.Value];
+    public TimePeriod Environment {
+        get
+        {
+            if (Index < 0) return FinalBossLevel;
+            return Environments[Index.Value];
+        }
+    }
+
     public Observed<int> Index { get; private set; }
+    public void TriggerFinalBoss()
+    {
+        Index.Value = -1;
+    }
     public void MoveIndex(int value)
     {
-        Index = Index + value;
-        if (Index.Value < 0) Index = Environments.Count - 1;
-        if (Index.Value >= Environments.Count) Index = 0;
+        var index = Index;
+        if (index == -1) return;
+        index = index + value;
+        if (index < 0) index = Environments.Count - 1;
+        if (index >= Environments.Count) index = 0;
+        Index.Value = index;
     }
+
+    public Observed<bool> InFinalLevel { get; private set; }
     public Observed<bool> InGame { get; private set; }
     public Observed<bool> Paused { get; private set; }
 
     public PlayerData Player { get; private set; }
     public List<TimePeriod> Environments {get; private set; }
+    public TimePeriod FinalBossLevel { get; set; }
+
     public Counter<string, int> Kills { get; private set; }
     public Counter<string, int> Props { get; private set; }
+    
 
     public Gamestate()
     {
@@ -31,11 +48,14 @@ public class Gamestate : Singleton<Gamestate>
 
         Paused = new Observed<bool>();
         InGame = new Observed<bool>();
+        InFinalLevel = new Observed<bool>();
     }
     public void Initialize(float life, float energy, float energyRegen, float switchSpeed, float moveSpeed, float damage, float attackSpeed)
     {
-        Paused.Value = false;
-        
+
+        Paused = new Observed<bool>();
+        InFinalLevel = new Observed<bool>();
+
         Index = 0;
 
         Kills.Reset();
@@ -52,6 +72,7 @@ public class Gamestate : Singleton<Gamestate>
         Player.SwitchSpeed.Value = switchSpeed;
         Player.MoveSpeed.Value = moveSpeed;
         Player.AttackSpeed.Value = attackSpeed;
+
     }
     
     

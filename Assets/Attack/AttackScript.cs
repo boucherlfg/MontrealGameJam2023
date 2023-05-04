@@ -7,8 +7,10 @@ public class AttackScript : MonoBehaviour
     public Rigidbody2D rbody;
     [HideInInspector]
     public Vector2 velocity;
+    public float damage;
     private float duration = 3;
     public AudioClip hitSound;
+    public const float speed = 20;
 
     public GameObject bloodEffect;
 
@@ -19,7 +21,7 @@ public class AttackScript : MonoBehaviour
             rbody.velocity = Vector2.zero;
             return;
         }
-        rbody.velocity = velocity * 20;
+        rbody.velocity = velocity * speed;
         duration -= Time.deltaTime;
         if (duration < 0) Destroy(gameObject);
     }
@@ -28,9 +30,11 @@ public class AttackScript : MonoBehaviour
         var enemy = collision.GetComponent<EnemyScript>();
         if (!enemy) return;
 
-        enemy.lifeCounter -= Gamestate.Instance.Player.Damage.Value;
+        enemy.lifeCounter -= damage;
         Instantiate(bloodEffect, transform.position, Quaternion.identity);
         AudioSource.PlayClipAtPoint(hitSound, transform.position);
         Destroy(gameObject);
     }
+
+
 }

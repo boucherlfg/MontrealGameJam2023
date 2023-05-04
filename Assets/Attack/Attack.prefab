@@ -117,6 +117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rbody: {fileID: 3864379279210954859}
   velocity: {x: 0, y: 0}
+  damage: 0
   hitSound: {fileID: 8300000, guid: 42ac5706e71f7b849989bc4d2a78949d, type: 3}
   bloodEffect: {fileID: 2822901951677758338, guid: ea1c27ddfae1b1e4886183f34e7eb5e9, type: 3}
 --- !u!50 &3864379279210954859

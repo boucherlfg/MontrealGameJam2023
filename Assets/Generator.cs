@@ -45,7 +45,7 @@ public class Generator : MonoBehaviour
     }
 
     public Generatable[] generatables;
-    const int size = 25;
+    public const int size = 25;
 
     [Header("prefabs and container")]
     public Transform container;
