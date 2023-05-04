@@ -456,6 +456,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2484244982726313151, guid: 70078e47512d52a4fa386d0f46d76b7f, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2484244982726313151, guid: 70078e47512d52a4fa386d0f46d76b7f, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 17351969
+      objectReference: {fileID: 0}
     - target: {fileID: 6878064315152609707, guid: 70078e47512d52a4fa386d0f46d76b7f, type: 3}
       propertyPath: m_Name
       value: MINIMAP

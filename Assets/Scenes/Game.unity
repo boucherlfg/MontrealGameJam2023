@@ -110689,7 +110689,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1595591400
 Transform:
   m_ObjectHideFlags: 0
@@ -110749,6 +110749,18 @@ MonoBehaviour:
     spawnRate: 8
     spawnType: 0
     isSubjectToDifficulty: 1
+    spawnCounter: 0
+  - prefab: {fileID: 5950699165941182541, guid: 57799fff8a2e5df4e92c318e32548a39, type: 3}
+    maxCount: 1000
+    spawnRate: 8
+    spawnType: 0
+    isSubjectToDifficulty: 1
+    spawnCounter: 0
+  - prefab: {fileID: 3040595271130722382, guid: ef685491011b40e418a30f3e3c642eb8, type: 3}
+    maxCount: 1
+    spawnRate: 10
+    spawnType: 2
+    isSubjectToDifficulty: 0
     spawnCounter: 0
   container: {fileID: 603220541}
 --- !u!1 &1607127206

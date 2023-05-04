@@ -11,7 +11,7 @@ public class Generator : MonoBehaviour
         public GameObject prefab;
         public int maxCount;
         public float spawnRate;
-        public enum SpawnType { KillCount, Rate }
+        public enum SpawnType { KillCount, Rate, ScoreCount }
         public SpawnType spawnType = SpawnType.KillCount;
 
         public bool isSubjectToDifficulty;
@@ -52,19 +52,56 @@ public class Generator : MonoBehaviour
 
     void OnEnable()
     {
-        Gamestate.Instance.Kills.Changed += Kills_Changed;
+        Gamestate.Instance.Environment.TotalKill.Changed += Kills_Changed;
+        Gamestate.Instance.Environment.Score.Changed += Score_Changed;
         
     }
+
+    
     void OnDisable()
     {
-        Gamestate.Instance.Kills.Changed -= Kills_Changed;
+        Gamestate.Instance.Environment.TotalKill.Changed -= Kills_Changed;
+        Gamestate.Instance.Environment.Score.Changed -= Score_Changed;
+    }
+    private void Score_Changed()
+    {
+        if (Gamestate.Instance.Paused.Value)
+        {
+            return;
+        }
+
+        foreach (var gen in generatables)
+        {
+            if (gen.spawnType != Generatable.SpawnType.ScoreCount) continue;
+            if (Gamestate.Instance.Props[gen.prefab.name] >= gen.maxCount) continue;
+
+            var difficulty = gen.GetDifficulty(Gamestate.Instance.Environment.TotalKill.Value);
+            var spawnRateModifier = gen.isSubjectToDifficulty ? gen.GetSpawnRateModifier(difficulty) : 1;
+
+            var score = Gamestate.Instance.Environment.Score.Value;
+            if (score <= 0 || score % (int)(gen.spawnRate / spawnRateModifier) != 0) continue;
+
+
+            gen.spawnCounter = 0;
+
+            var pos = GetValidPos();
+            gen.Create(pos, container, obj => {
+                var comp = obj.GetComponent<PowerupScript>();
+                if (comp) BuildPowerup(comp, difficulty);
+            });
+        }
     }
 
     private void Kills_Changed()
     {
+        if (Gamestate.Instance.Paused.Value)
+        {
+            return;
+        }
+
         foreach (var gen in generatables)
         {
-            if (gen.spawnType == Generatable.SpawnType.Rate) continue;
+            if (gen.spawnType != Generatable.SpawnType.KillCount) continue;
             if (Gamestate.Instance.Props[gen.prefab.name] >= gen.maxCount) continue;
 
             var difficulty = gen.GetDifficulty(Gamestate.Instance.Environment.TotalKill.Value);
@@ -87,7 +124,7 @@ public class Generator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Gamestate.Instance.Paused.Value) 
+        if (Gamestate.Instance.Paused.Value)
         {
             return;
         }

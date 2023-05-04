@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
+    public AudioClip spawnNoise;
     public string visibleName;
     public float life = 3;
     [HideInInspector]
@@ -25,6 +26,7 @@ public class EnemyScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (spawnNoise) AudioSource.PlayClipAtPoint(spawnNoise, transform.position);
         body = GetComponent<Rigidbody2D>();
         lifeSlider.gameObject.SetActive(false);
         lifeCounter = life;
