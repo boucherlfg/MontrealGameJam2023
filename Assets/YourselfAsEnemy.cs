@@ -21,14 +21,14 @@ public class YourselfAsEnemy : MonoBehaviour
         rbody = GetComponent<Rigidbody2D>();
         me = GetComponent<EnemyScript>();
 
-        me.life = Gamestate.Instance.Player.MaxLife / 10;
-        me.lifeCounter = Gamestate.Instance.Player.MaxLife / 10;
+        me.life = Gamestate.Instance.Player.MaxLife * 2;
+        me.lifeCounter = Gamestate.Instance.Player.MaxLife * 2;
         lastLife = me.life;
 
         me.attack = Gamestate.Instance.Player.Damage;
-        me.attackSpeed = Gamestate.Instance.Player.AttackSpeed / 2;
+        me.attackSpeed = Gamestate.Instance.Player.AttackSpeed / 1.5f;
 
-        me.speed = Gamestate.Instance.Player.MoveSpeed / 2;
+        me.speed = Gamestate.Instance.Player.MoveSpeed / 1.5f;
     }
 
     // Update is called once per frame

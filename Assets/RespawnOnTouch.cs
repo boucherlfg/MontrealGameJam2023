@@ -7,6 +7,8 @@ public class RespawnOnTouch : MonoBehaviour
 {
     private float lastLife;
     EnemyScript me;
+
+    public AudioClip respawnSound;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +30,7 @@ public class RespawnOnTouch : MonoBehaviour
 
     void Respawn()
     {
+        AudioSource.PlayClipAtPoint(respawnSound, transform.position);
         var pos = GetValidPos();
         transform.position = pos;
     }

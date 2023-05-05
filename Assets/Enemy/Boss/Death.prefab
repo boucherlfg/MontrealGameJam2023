@@ -108,6 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d5bf8925bf8ff74a97b940687e3cf86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  respawnSound: {fileID: 8300000, guid: fa36892b285d90b47afc51f69f3d3953, type: 3}
 --- !u!60 &8100283284241266144
 PolygonCollider2D:
   m_ObjectHideFlags: 0
