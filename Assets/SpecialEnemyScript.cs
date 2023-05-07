@@ -9,7 +9,7 @@ public class SpecialEnemyScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (sound) AudioSource.PlayClipAtPoint(sound, transform.position);
+        if (sound) AudioSource.PlayClipAtPoint(sound, Gamestate.Instance.Player.Position.Value);
         if (message != string.Empty) Notification.Instance.Create(message);
     }
 

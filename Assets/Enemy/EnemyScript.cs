@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
-    public AudioClip spawnNoise;
     public string visibleName;
     public float life = 3;
     [HideInInspector]
