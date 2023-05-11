@@ -21,7 +21,7 @@ public class EpochDisplay : MonoBehaviour
 
     private void UpdateTimePeriod()
     {
-        label.text = "<Q - " + Gamestate.Instance.Environment.Data.visibleName + " - E>";
+        label.text = Gamestate.Instance.Environment.Data.visibleName;
         Notification.Instance.Create("welcome to " + Gamestate.Instance.Environment.Data.visibleName + "!");
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
+    public static List<EnemyScript> enemies = new List<EnemyScript>();
     public string visibleName;
     public float life = 3;
     [HideInInspector]
@@ -26,10 +27,20 @@ public class EnemyScript : MonoBehaviour
     {
         lifeSlider.gameObject.SetActive(false);
         lifeCounter = life;
+        
         Gamestate.Instance.Props[name]++;
+    }
+    void OnEnable()
+    {
+        enemies.Add(this);
+    }
+    void OnDisable()
+    {
+        enemies.Remove(this);
     }
     void OnDestroy()
     {
+        
         Gamestate.Instance.Props[name]--;
     }
 
@@ -49,7 +60,6 @@ public class EnemyScript : MonoBehaviour
     {
         if (lifeCounter <= 0)
         {
-            Notification.Instance.Create("you just killed " + visibleName + "!");
             AudioSource.PlayClipAtPoint(deathSound, transform.position);
             Gamestate.Instance.Kills[name]++;
             Gamestate.Instance.Environment.TotalKill.Value++;

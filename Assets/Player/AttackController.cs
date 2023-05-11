@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class AttackController : MonoBehaviour
 {
+    public float range = 10;
     public AudioClip attackSound;
-    private Vector2 direction;
     private bool shooting;
     public GameObject attackPrefab;
+    private Vector2 defaultDirection = Vector2.right;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +25,7 @@ public class AttackController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         Shoot();
         UpdateAttackSlider();
     }
@@ -51,8 +53,31 @@ public class AttackController : MonoBehaviour
     }
     Vector2 GetDirection()
     {
-        var pos = Camera.main.ScreenToWorldPoint(Inputs.Instance.MousePosition);
-        direction = pos - transform.position;
-        return direction.normalized;
+        var move = Inputs.Instance.Move;
+        if (move.magnitude >= 0.1f) defaultDirection = move;
+        var enemies = EnemyScript.enemies;
+
+        if (enemies.Count <= 0) return defaultDirection;
+        EnemyScript most = null;
+        float mostDist = float.MaxValue;
+        foreach (var enemy in enemies)
+        {
+            var dist = Vector2.Distance(enemy.transform.position, transform.position);
+            if (dist >= range) continue;
+            if (dist >= mostDist) continue;
+            most = enemy;
+            mostDist = dist;
+        }
+        if (!most) return defaultDirection;
+
+        defaultDirection = (most.transform.position - transform.position).normalized;
+        return defaultDirection;
+    }
+    void OnDrawGizmos()
+    {
+#if UNITY_EDITOR
+        UnityEditor.Handles.color = Color.red;
+        UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, range);
+#endif
     }
 }

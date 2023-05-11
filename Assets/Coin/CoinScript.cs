@@ -2,8 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 
+/// </summary>
 public class CoinScript : MonoBehaviour
 {
+
+    public string test;
     public string visibleName;
     public AudioClip coinSound;
     public GameObject scoreParticle;

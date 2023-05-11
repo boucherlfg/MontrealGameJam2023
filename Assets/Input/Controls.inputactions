@@ -345,6 +345,17 @@
                 },
                 {
                     "name": "",
+                    "id": "bb180a25-4ba8-4024-9919-9d7476f02e6e",
+                    "path": "*/{Menu}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "a78d1358-0b4a-4d5a-830f-81925c926c1e",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",

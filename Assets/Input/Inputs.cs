@@ -1,7 +1,74 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+#if UNITY_ANDROID
+public class Inputs : SingletonBehaviour<Inputs>
+{
+    public FixedJoystick joystick;
+    public Toggle fire;
+    public Toggle sprint;
+    public Button potion;
+    public Button switchLeft;
+    public Button switchRight;
+    public Button pause;
 
+    private Controls controls;
+    protected override void Awake()
+    {
+        base.Awake();
+        controls = new Controls();
+        controls.Player.Enable();
+
+        fire.onValueChanged.AddListener(Fire);
+        sprint.onValueChanged.AddListener(Sprint);
+        switchLeft.onClick.AddListener(SwitchLeft);
+        switchRight.onClick.AddListener(SwitchRight);
+        potion.onClick.AddListener(Potion);
+        pause.onClick.AddListener(Pause);
+    }
+
+    private void Pause()
+    {
+        Paused?.Invoke();
+    }
+
+    private void Potion()
+    {
+        Potioned?.Invoke();
+    }
+
+    private void SwitchRight()
+    {
+        Switched?.Invoke(1);
+    }
+
+    private void SwitchLeft()
+    {
+        Switched?.Invoke(-1);
+    }
+
+    private void Fire(bool value)
+    {
+        Clicked?.Invoke(value);
+    }
+
+    private void Sprint(bool value)
+    {
+        Sprinted(value);
+    }
+
+    public event Action<int> Switched; //
+    public event Action<bool> Sprinted;//
+    public event Action Potioned; //
+    public event Action Paused;
+    public event Action<bool> Clicked; //
+
+    public Vector2 Move => joystick.Direction.normalized;
+}
+#else
 public class Inputs : Singleton<Inputs>
 {
     private Controls controls;
@@ -16,6 +83,7 @@ public class Inputs : Singleton<Inputs>
         controls.Player.Sprint.performed += OnSprintActive;
         controls.Player.Sprint.canceled += OnSprintInactive;
         controls.Player.Switch.performed += OnSwitch;
+        
     }
 
     private void Click_Inactive(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -59,3 +127,4 @@ public class Inputs : Singleton<Inputs>
     public Vector2 Move => controls.Player.Move.ReadValue<Vector2>();
     public Vector2 MousePosition => controls.Player.MousePos.ReadValue<Vector2>();
 }
+#endif
